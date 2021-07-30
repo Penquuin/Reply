@@ -44,7 +44,7 @@ export function CreateClientStore<S, A extends Rokux.Action, SS, SA extends Roku
 	const CreateClientMiddleware = (): Rokux.ReadonlyMiddleware<TEnhancement<S, SS>, EnhancedClientActions> => {
 		return (nextDispatch, state) => {
 			return (action) => {
-				if (action.type === "RefreshShared") {
+				if (action.type === "RefreshShared" || action.type === "_OnSharedDispatched") {
 					return nextDispatch(action);
 				}
 				const castedAction = action as A;
