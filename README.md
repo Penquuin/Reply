@@ -19,7 +19,6 @@ on Rokux.
 
 ## Implementation
 
-Currently there are no documentations for Reply, but you can easily
-look at the source code and reverse-engineer it.
+Currently there is a simple [documentations](https://github.com/Penquuin/Reply/wiki/Documentation) for Reply, but you can easily look at the source code and reverse-engineer it.
 
 [Demo](https://github.com/Penquuin/ReplyDemo)
