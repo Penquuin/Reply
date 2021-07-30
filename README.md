@@ -11,10 +11,15 @@ it is complex to build a secured store replication system that conserves the rec
 state while replicating to it. This is when Reply comes into play, it simplifies the
 process of creating two stores with auto replication.
 
-### Constraints
+## Constraints
 
 Currently Reply only supports _directional_ communication from server to client.
 But you can create your own inverse communication process. It also highly depends
 on Rokux.
 
-[Demo]()
+## Implementation
+
+Currently there are no documentations for Reply, but you can easily
+look at the source code and reverse-engineer it.
+
+[Demo](https://github.com/Penquuin/ReplyDemo)
