@@ -1,7 +1,7 @@
 {
   "name": "@rbxts/reply",
   "version": "0.0.0",
-  "description": "",
+  "description": "Advanced lightweight rokux-like store replicator.",
   "main": "out/init.lua",
   "scripts": {
     "build": "rbxtsc",
@@ -9,7 +9,7 @@
     "prepublishOnly": "npm run build"
   },
   "keywords": [],
-  "author": "",
+  "author": "penquuin",
   "license": "ISC",
   "types": "out/index.d.ts",
   "files": [
