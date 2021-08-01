@@ -15,6 +15,7 @@ export function CreateClientStore<S, A extends Rokux.Action, SS, SA extends Roku
 	DefaultState: S,
 	DefaultSharedState: SS,
 	Middleware?: ReadonlyMiddleware<S, A>,
+	SharedMiddleware?: ReadonlyMiddleware<SS, SA>,
 ) {
 	const EnhancedState: TEnhancement<S, SS> = {
 		...DefaultState,
@@ -44,7 +45,19 @@ export function CreateClientStore<S, A extends Rokux.Action, SS, SA extends Roku
 	const CreateClientMiddleware = (): Rokux.ReadonlyMiddleware<TEnhancement<S, SS>, EnhancedClientActions> => {
 		return (nextDispatch, state) => {
 			return (action) => {
-				if (action.type === "RefreshShared" || action.type === "_OnSharedDispatched") {
+				if (action.type === "_OnSharedDispatched") {
+					if (SharedMiddleware) {
+						const sharedresult = SharedMiddleware((SAction) => {
+							return SharedReducer(state._Shared, SAction);
+						}, state._Shared)((action as I_OnSharedDispatched<SA>).Action);
+						return {
+							...state,
+							_Shared: sharedresult,
+						};
+					} else {
+						return nextDispatch(action);
+					}
+				} else if (action.type === "RefreshShared") {
 					return nextDispatch(action);
 				}
 				const castedAction = action as A;

@@ -17,6 +17,7 @@ export function CreateServerStore<S, A extends Rokux.Action, SS, SA extends Roku
 	DefaultSharedState: SS,
 	OnSharedActionDispatched: (DispatchedAction: SA) => void,
 	Middleware?: ReadonlyMiddleware<S, A>,
+	SharedMiddleware?: ReadonlyMiddleware<SS, SA>,
 ) {
 	const EnhancedState: TEnhancement<S, SS> = {
 		...DefaultState,
@@ -46,6 +47,15 @@ export function CreateServerStore<S, A extends Rokux.Action, SS, SA extends Roku
 				if (action.type === "_OnSharedDispatched") {
 					const Casted = action as I_OnSharedDispatched<SA>;
 					OnSharedActionDispatched(Casted.Action);
+					if (SharedMiddleware) {
+						const sharedresult = SharedMiddleware((SAction) => {
+							return SharedReducer(state._Shared, SAction);
+						}, state._Shared)((action as I_OnSharedDispatched<SA>).Action);
+						return {
+							...state,
+							_Shared: sharedresult,
+						};
+					}
 					return nextDispatch(Casted);
 				} else {
 					//server action
