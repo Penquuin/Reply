@@ -2,7 +2,7 @@ import {
 	I_OnSharedDispatched as i_OnSharedDispatched,
 	IRefreshShared as iRefreshShared,
 	TEnhancement as tEnhancement,
-} from "utility";
+} from "utility.d";
 import { CreateClientStore as createClientStore } from "create-client-store";
 import { CreateServerStore as createServerStore } from "create-server-store";
 

@@ -1,5 +1,6 @@
 import Rokux from "@rbxts/rokux";
 import { Reducer, ReadonlyMiddleware } from "@rbxts/rokux/out/rokux-types";
+import { IsRefreshShared, IsSharedDispatched } from "guards";
 import { I_OnSharedDispatched, IRefreshShared, TEnhancement } from "utility";
 /**
  *
@@ -24,18 +25,15 @@ export function CreateClientStore<S, A extends Rokux.Action, SS, SA extends Roku
 
 	type EnhancedClientActions = A | IRefreshShared<SS> | I_OnSharedDispatched<SA>;
 	const CombinedReducer = (state: TEnhancement<S, SS>, action: EnhancedClientActions): TEnhancement<S, SS> => {
-		if (action.type === "RefreshShared") {
-			const CastedAction = action as IRefreshShared<SS>;
-			state._Shared = CastedAction.state;
+		if (IsRefreshShared<EnhancedClientActions, SS>(action)) {
+			state._Shared = action.state;
 			return state;
-		} else if (action.type === "_OnSharedDispatched") {
-			const CastedAction = action as I_OnSharedDispatched<SA>;
-			state._Shared = SharedReducer(state._Shared, CastedAction.Action);
+		} else if (IsSharedDispatched<EnhancedClientActions, SA>(action)) {
+			state._Shared = SharedReducer(state._Shared, action.Action);
 			return state;
 		} else {
 			//client action
-			const CastedAction = action as A;
-			const result = ClientReducer(state as S, CastedAction);
+			const result = ClientReducer(state as S, action);
 			return {
 				...result,
 				_Shared: state._Shared,
@@ -45,32 +43,30 @@ export function CreateClientStore<S, A extends Rokux.Action, SS, SA extends Roku
 	const CreateClientMiddleware = (): Rokux.ReadonlyMiddleware<TEnhancement<S, SS>, EnhancedClientActions> => {
 		return (nextDispatch, state) => {
 			return (action) => {
-				if (action.type === "_OnSharedDispatched") {
+				if (IsSharedDispatched<EnhancedClientActions, SA>(action)) {
 					if (SharedMiddleware) {
 						const sharedresult = SharedMiddleware((SAction) => {
 							return SharedReducer(state._Shared, SAction);
-						}, state._Shared)((action as I_OnSharedDispatched<SA>).Action);
+						}, state._Shared)(action.Action);
 						return {
 							...state,
 							_Shared: sharedresult,
 						};
-					} else {
-						return nextDispatch(action);
 					}
-				} else if (action.type === "RefreshShared") {
+					return nextDispatch(action);
+				} else if (IsRefreshShared<EnhancedClientActions, SS>(action)) {
 					return nextDispatch(action);
 				}
-				const castedAction = action as A;
 				if (Middleware) {
 					const clientresult = Middleware((AAction) => {
 						return ClientReducer(state as S, AAction);
-					}, state as S)(castedAction);
+					}, state as S)(action);
 					return {
 						...clientresult,
 						_Shared: state._Shared,
 					};
 				} else {
-					const clientresult = ClientReducer(state as S, castedAction);
+					const clientresult = ClientReducer(state as S, action);
 					return {
 						...clientresult,
 						_Shared: state._Shared,

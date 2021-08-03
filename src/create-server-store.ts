@@ -1,6 +1,7 @@
 import Rokux from "@rbxts/rokux";
 import { ReadonlyMiddleware, Reducer } from "@rbxts/rokux/out/rokux-types";
-import { I_OnSharedDispatched, TEnhancement } from "utility";
+import { IsSharedDispatched } from "guards";
+import { AdditionServerActions, I_OnSharedDispatched, TEnhancement } from "utility";
 /**
  *
  * @param ServerReducer Your server's reducer
@@ -23,16 +24,14 @@ export function CreateServerStore<S, A extends Rokux.Action, SS, SA extends Roku
 		...DefaultState,
 		_Shared: DefaultSharedState,
 	};
-	type EnhancedServerActions = A | I_OnSharedDispatched<SA>;
+	type EnhancedServerActions = AdditionServerActions<A, SA>;
 	const NewReducer = (State: TEnhancement<S, SS>, Action: EnhancedServerActions): TEnhancement<S, SS> => {
-		if (Action.type === "_OnSharedDispatched") {
-			const Cast = Action as I_OnSharedDispatched<SA>;
-			State._Shared = SharedReducer(State._Shared, Cast.Action);
+		if (IsSharedDispatched<EnhancedServerActions, SA>(Action)) {
+			State._Shared = SharedReducer(State._Shared, Action.Action);
 			return State;
 		} else {
-			const Cast = Action as A;
 			const CastState = State as S;
-			const result = ServerReducer(CastState, Cast);
+			const result = ServerReducer(CastState, Action);
 			State = {
 				...result,
 				_Shared: State._Shared,
@@ -44,29 +43,27 @@ export function CreateServerStore<S, A extends Rokux.Action, SS, SA extends Roku
 		return (nextDispatch, state) => {
 			const CastedState = state as S;
 			return (action) => {
-				if (action.type === "_OnSharedDispatched") {
-					const Casted = action as I_OnSharedDispatched<SA>;
-					OnSharedActionDispatched(Casted.Action);
+				if (IsSharedDispatched<EnhancedServerActions, SA>(action)) {
+					OnSharedActionDispatched(action.Action);
 					if (SharedMiddleware) {
 						const sharedresult = SharedMiddleware((SAction) => {
 							return SharedReducer(state._Shared, SAction);
-						}, state._Shared)((action as I_OnSharedDispatched<SA>).Action);
+						}, state._Shared)(action.Action);
 						return {
 							...state,
 							_Shared: sharedresult,
 						};
 					}
-					return nextDispatch(Casted);
+					return nextDispatch(action);
 				} else {
 					//server action
-					const Casted = action as A;
 					let result: S;
 					if (Middleware) {
 						result = Middleware((AAction) => {
 							return ServerReducer(CastedState, AAction);
-						}, CastedState)(Casted);
+						}, CastedState)(action);
 					} else {
-						result = ServerReducer(CastedState, Casted);
+						result = ServerReducer(CastedState, action);
 					}
 					const desired: TEnhancement<S, SS> = {
 						...result,
