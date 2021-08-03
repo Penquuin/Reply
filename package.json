@@ -31,7 +31,6 @@
     "typescript": "^4.3.5"
   },
   "dependencies": {
-    "@rbxts/net": "^2.0.0",
     "@rbxts/rokux": "0.0.2"
   }
 }
