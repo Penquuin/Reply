@@ -1,6 +1,6 @@
 {
   "name": "@rbxts/reply",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Advanced lightweight rokux-like store replicator.",
   "main": "out/init.lua",
   "scripts": {
