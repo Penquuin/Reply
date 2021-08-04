@@ -15,7 +15,7 @@
 				"--colors",
 				"${file}",
 				"--require",
-				"ts-node/register"
+				"ts-node/register",
 			],
 			"console": "integratedTerminal",
 			"sourceMaps": true,
