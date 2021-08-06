@@ -35,6 +35,6 @@
     "typescript": "^4.3.5"
   },
   "dependencies": {
-    "@rbxts/rokux": "0.0.2"
+    "@rbxts/rokux": "0.0.5"
   }
 }
